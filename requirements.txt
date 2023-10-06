@@ -1,1 +1,4 @@
-typer
+gym==0.26.2
+pygame==2.5.2
+stable_baselines3==2.1.0
+tensorboard==2.14.1

@@ -4,9 +4,6 @@ from abc import abstractmethod, ABC
 class BaseCommand(ABC):
     ARGS_CONFIG = []
 
-    def __init__(self):
-        print("Base Command")
-
     @abstractmethod
     def execute(self, **kwargs):
         pass

@@ -12,6 +12,31 @@ def get_full_path(command_string: str):
     return locate(module_path)
 
 
+class Arguments:
+    pass
+
+
+def parse_unknown_args(unknown_args):
+    args_obj = Arguments()
+    prefix_chars = argparse.ArgumentParser().prefix_chars
+
+    while unknown_args:
+        arg = unknown_args.pop(0)
+        if arg[0] in prefix_chars:
+            arg = arg.lstrip(prefix_chars)
+            if '=' in arg:
+                key, value = arg.split('=', 1)
+                setattr(args_obj, key, value)
+            elif unknown_args and unknown_args[0][0] not in prefix_chars:
+                value = unknown_args.pop(0)
+                setattr(args_obj, arg, value)
+            else:
+                setattr(args_obj, arg, True)
+        else:
+            print(f'Warning: {arg} is not recognized as a valid argument.')
+
+    return args_obj
+
 
 def load_all_modules_from_dir(dirname):
     for module_name in os.listdir(dirname):
@@ -23,6 +48,7 @@ def load_all_modules_from_dir(dirname):
 
 
 def initialize_app():
+    load_all_modules_from_dir("environments")
     load_all_modules_from_dir("trainers")
     load_all_modules_from_dir("commands")
 
@@ -42,8 +68,11 @@ def main():
 
     # Allow the loaded command class to add its specific arguments
     command_class.arg_spec(parser)
-    args = parser.parse_args()  # Parse again with full arguments
+    args, unknown = parser.parse_known_args()  # Parse again with full arguments
     vargs = vars(args)
+    if len(unknown):
+        unknown = parse_unknown_args(unknown)
+        vargs.update(vars(unknown))
     vargs.pop("command")
     # Execute the command
     result = command_class.execute(**vargs)

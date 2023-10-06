@@ -4,9 +4,8 @@ from commands.BaseCommand import BaseCommand
 from di import register
 from trainers.BaseTrainer import BaseTrainer
 
-
 @register
-class TrainCommand(BaseCommand):
+class PlayCommand(BaseCommand):
     ARGS_CONFIG: List[object] = [
         {
             'flags': ['--game'],
@@ -20,9 +19,7 @@ class TrainCommand(BaseCommand):
 
     trainers: List[BaseTrainer] = []
 
-    def execute(self, game, **kwargs):
+    def execute(self, game):
         for trainer in self.trainers:
             if trainer.get_name() == game:
-                return trainer.train(kwargs)
-
-        return f"No trainer found for {game}."
+                return trainer.play()
